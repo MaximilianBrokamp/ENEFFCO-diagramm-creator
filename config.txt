@@ -1,0 +1,8 @@
+# In this file you can specify all needed information about the diagram you want to create automatically
+# Lines Starting with an '#' count as a comment and thus will not be interpreted
+
+diagram_name: '00 Anlagenüberwachung'
+template_path: '.\00 Anlagenüberwachung'
+hierarchical_codes_template: 'ACO.001, STO.003'
+special_datapoints: 'Aussentemperatur'
+

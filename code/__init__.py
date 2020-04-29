@@ -1,10 +1,13 @@
 import selenium
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from pynput.keyboard import Key, Controller
+from selenium.webdriver.chrome.options import Options
+
 import time
 
 
@@ -44,24 +47,28 @@ def waitForElement(driver, length, search_type, search_value):
         #exit(1)
 
 def init():
-    driver = webdriver.Chrome()
+    chrome_options = Options()
+    chrome_options.add_experimental_option("detach", True)
+    driver = webdriver.Chrome(chrome_options=chrome_options)
+
     driver.maximize_window()
+
+    facility_code = "EWU.004"
+    daigram_template_code = "ACO.001"
     #driver.implicitly_wait(5)
     # Open the website
     driver.get('https://ewus.eneffco.de/ChartPage.aspx')
     login(driver)
 
     # quick test for creating a diagram
-    search_facilities_box = driver.find_element_by_id(
-        'SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I')
+    search_facilities_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I')
     search_facilities_box.send_keys('EWU.004')
     search_facilities_box.send_keys(Keys.ENTER)
 
     time.sleep(2)
     # the id describes the first entry in the search
     # the id for the first entry should stay the same no matter the input.
-    facility_icon = driver.find_element_by_xpath(
-        "// *[ @ id = 'SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_D'] / tbody/tr[3]")
+    facility_icon = driver.find_element_by_xpath("// *[ @ id = 'SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_D'] / tbody/tr[3]")
     facility_icon.click()
 
     time.sleep(2)
@@ -81,27 +88,108 @@ def init():
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
 
+
     #TODO
-    #change from button press to just klick enter
-    waitForElement(driver, 15, By.XPATH, "html/body/div[3]/div[3]/div/button[1]")
-    save_upload_button = driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/button[1]")
-    save_upload_button.click()
+    #change sleep to a dynnamic waiting
+    time.sleep(5)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
 
     waitForElement(driver, 30, By.ID , "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_BindingsCollapsibelPanel_NamedRefCtrl_CBPanel_Grid_DXFREditorcol0_B-1")
-    print("1")
-
-    #waitForElement(driver, 10, By.ID , "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT1")
-    print("2")
-    datapoints_button = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT1")
-    datapoints_button = driver.find_element_by_xpath("//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_T1']/table/tbody/tr/td[2]")
+    waitForElement(driver, 10, By.ID , "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_T1")
+    datapoints_button = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_T1")
+    #datapoints_button = driver.find_element_by_xpath("//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_T1']/table/tbody/tr/td[2]")
     datapoints_button.click()
 
-    waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXFREditorcol0")
-    datapoints_searchcode_box = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXFREditorcol0")
-    datapoints_searchcode_box.send_keys("EWU004")
-    datapoints_searchcode_box.send_keys(Key.enter)
+    # wait for datapoints to load
+    waitForElement(driver, 10, By.ID,"SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXDataRow1")
+    #waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXFREditorcol0_I")
+    #datapoints_searchcode_box = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXFREditorcol0_I")
+    #datapoints_searchcode_box.send_keys("EWU.004")
+    #time.sleep(5)
+    #datapoints_searchcode_box.send_keys("EWU.004")
+    #datapoints_searchcode_box.send_keys(Keys.ENTER)
+    #TODO
+    #Change EWU.004 to a variable which containins the current facility code
+    while driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXDataRow0").text.find("EWU.004") == -1:
+        try:
+            datapoints_searchcode_box = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXFREditorcol0_I")
+            datapoints_searchcode_box.clear()
+            datapoints_searchcode_box.send_keys("EWU.004")
+            datapoints_searchcode_box.send_keys(Keys.ENTER)
+            time.sleep(2)
+        except:
+            selenium.common.exceptions.StaleElementReferenceException
+            break
+
+
+    time.sleep(1)
+
+    #datapoints_searchcode_box.send_keys(Keys.ENTER)
+    # read out all data points existing for the selected facility and save them
+    row_number = 0
+    datapoint_list = []
+    while True:
+        row_id = "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_DescBrowsePanel_DescSearchGrid_SearchGrid_DXDataRow" + str(
+            row_number)
+        current_datapoint = driver.find_elements(By.ID, row_id)
+        if len(current_datapoint) != 0:
+            datapoint_code = str(current_datapoint[0].text).split("\n", 1)
+            print(datapoint_code[0])
+            datapoint_list.append([datapoint_code[0], current_datapoint[0]])
+            row_number += 1
+        else:
+            break
+
+    # read out the datapoints that are needed for the diagramm
+
+    row_number = 0
+    diagram_datapoint_list = []
+    codes_to_replace = ["ACO.001", "STO.003"]
+    while True:
+        row_id = "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_BindingsCollapsibelPanel_NamedRefCtrl_CBPanel_Grid_DXDataRow" + str(
+            row_number)
+        current_datapoint = driver.find_elements(By.ID, row_id)
+        if len(current_datapoint) != 0:
+            # print(current_datapoint.text)
+            #print(driver.find_element_by_xpath(str("//*[@id='" + row_id + "']/td[1]")).text)
+            if driver.find_element_by_xpath(str("//*[@id='" + row_id + "']/td[1]")).text == "Datenpunkt":
+                datapoint = driver.find_element_by_xpath(str("//*[@id='" + row_id + "']/td[2]"))
+                datapoint_drop_location_xpath = str("//*[@id='" + row_id + "']/td[6]")
+                datapoint_code = datapoint.text
+                #print(datapoint)
+                for code in codes_to_replace:
+                    datapoint_code = datapoint_code.replace(code, "")
+                #print(datapoint)
+                diagram_datapoint_list.append([datapoint_code, datapoint, datapoint_drop_location_xpath])
+            row_number += 1
+        else:
+            break
+
+    actionChains = ActionChains(driver)
+    for diagram_datapoint in diagram_datapoint_list:
+        existing = False
+        for datapoint in datapoint_list:
+            if str("EWU.004" + diagram_datapoint[0]) == datapoint[0]:
+                # TODO
+                # drag and drop elements
+                print(diagram_datapoint[0])
+                print(datapoint[0])
+                #print(diagram_datapoint[2])
+                print(datapoint[1])
+                actionChains = ActionChains(driver)
+                actionChains.drag_and_drop(datapoint[1], driver.find_element_by_xpath(diagram_datapoint[2])).perform()
+                existing = True
+                time.sleep(1)
+                break
+
+    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_ctl00_DashSettingsToolbar_commitSettings").click()
     checkIfWindowIsClosed(driver)
+
 
 
 if __name__ == "__main__":
     init()
+
+
+
