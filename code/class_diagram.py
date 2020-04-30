@@ -7,3 +7,9 @@ class diagram:
         self.template_path = template_path
         self.hierarchical_codes = hierarchical_codes
         self.special_datapoints = special_datapoints
+        self.facilities_with_diagram = []
+
+    def add_facility(self, facility_code):
+        self.facilites_with_diagram.append(facility_code)
+
+
