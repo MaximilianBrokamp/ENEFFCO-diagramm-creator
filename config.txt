@@ -4,5 +4,3 @@
 diagram_name: '00 Anlagenüberwachung'
 template_path: '.\00 Anlagenüberwachung'
 hierarchical_codes_template: 'ACO.001, STO.003'
-special_datapoints: 'Aussentemperatur'
-

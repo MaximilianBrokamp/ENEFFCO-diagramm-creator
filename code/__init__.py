@@ -23,12 +23,7 @@ def login(driver):
     login_button = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_LoginButton')
     login_button.click()
 
-def check_existence(driver, search_type, search_value):
-    try:
-        driver.find_element(search_type, search_value)
-    except selenium.common.exceptions.NoSuchElementException:
-        return False
-    return True
+
 
 # checks if the main window is closed in an defined interval
 # script is effectively paused when this method is called until the window is closed
