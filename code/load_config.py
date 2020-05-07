@@ -25,7 +25,9 @@ def load_config(relative_file_path = "..\config.txt"):
             name = line_split[1].split('\'', 2)[1]
             di.set_name(name)
         elif line_split[0] == "template_path":
-            relative_template_path = line_split[1].split('\'', 2)[1]
+            relative_template_path = "../" + line_split[1].split('\'', 2)[1]
+            if relative_template_path.find(".EnEffCoDashBoard") == -1:
+                relative_template_path = relative_template_path + ".EnEffCoDashBoard"
             di.template_path = os.path.abspath(relative_template_path)
         elif line_split[0] == "hierarchical_codes_template":
             code_array = line_split[1].split('\'', 2)[1].split(',')

@@ -1,5 +1,6 @@
-import selenium
 import time
+import os
+import selenium
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
@@ -45,10 +46,11 @@ def check_existence(driver, search_type, search_value):
 #can be used to ensure that the starting position for any function is right
 def go_to_ChartPage(driver):
     driver.get("https://ewus.eneffco.de/ChartPage.aspx")
+    waitForElement(driver, 10 , By.XPATH, "// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]")
+    driver.find_element_by_xpath("// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]").click()
     waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0")
     driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0").click()
-    driver.find_element_by_id(
-        'SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
+    driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
 
 def wait_and_reload(driver, length, reload_times, search_type, search_value):
     i = 1
@@ -65,3 +67,42 @@ def wait_and_reload(driver, length, reload_times, search_type, search_value):
     print("could not find elmenet after " + i + " reload times")
     driver.quit()
     return False
+
+def download_wait(path_to_downloads, filename):
+    seconds = 0
+    dl_wait = True
+    while dl_wait and seconds < 10:
+        time.sleep(1)
+        dl_wait = False
+        for fname in os.listdir(path_to_downloads):
+            if fname.endswith(filename):
+                return True
+        seconds += 1
+    return False
+
+#waits for all the loading elements to be not displayed (which means that all elements of the website will be fully loaded)
+#time_before_start: this time will be waited before checking for loading signs the first time
+# if after 15 seconds the side hasn't fully loaded it will return false
+def wait_loading_finished(driver, time_before_start):
+    time.sleep(3)
+    seconds = 0
+    loading_finished = True
+    try:
+        while seconds < 15:
+            loading_finished = True
+            loading_elements = driver.find_elements_by_class_name("dxpnlLoadingPanelWithContent_EnEffCo")
+           #print(len(loading_elements))
+            for element in loading_elements:
+                print(element.value_of_css_property("position"))
+                if element.value_of_css_property("position") == "absolute":
+                    loading_finished = False
+            if loading_finished:
+                return True
+            time.sleep(1)
+            seconds += 1
+        return False
+    except selenium.common.exceptions.StaleElementReferenceException:
+        return wait_loading_finished(driver, 2)
+
+
+
