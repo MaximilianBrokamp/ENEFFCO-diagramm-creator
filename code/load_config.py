@@ -9,6 +9,7 @@ from class_diagram import diagram
 
 
 def load_config(relative_file_path = "..\config.txt"):
+    valid_diagram_types = ["dashboard", "chart"]
     try:
         config_file = open(relative_file_path, "r", encoding="utf-8")
     except FileNotFoundError:
@@ -26,14 +27,21 @@ def load_config(relative_file_path = "..\config.txt"):
             di.set_name(name)
         elif line_split[0] == "template_path":
             relative_template_path = "../" + line_split[1].split('\'', 2)[1]
-            if relative_template_path.find(".EnEffCoDashBoard") == -1:
-                relative_template_path = relative_template_path + ".EnEffCoDashBoard"
             di.template_path = os.path.abspath(relative_template_path)
+        elif line_split[0] == "diagram_type":
+            type = line_split[1].split('\'', 2)[1]
+            if type in valid_diagram_types:
+                di.set_type(type)
+            else:
+                print("incorrect config")
+                #TODO
+                # Throw incorrect config exception
         elif line_split[0] == "hierarchical_codes_template":
             code_array = line_split[1].split('\'', 2)[1].split(',')
             for i in range(len(code_array)):
                 code_array[i] = code_array[i].lstrip(' ')
-            di.hierarchical_codes = code_array
+                print(code_array[i])
+                di.hierarchical_codes.append(code_array[i])
         elif line_split[0] == 'special_datapoints':
             datapoints_array = line_split[1].split('\'', 2)[1].split(',')
             for i in range(len(datapoints_array)):

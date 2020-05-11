@@ -4,6 +4,7 @@ import selenium
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver import ActionChains
 
 
 # checks if the main window is closed in an defined interval
@@ -49,8 +50,13 @@ def go_to_ChartPage(driver):
     waitForElement(driver, 10 , By.XPATH, "// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]")
     driver.find_element_by_xpath("// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]").click()
     waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0")
-    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0").click()
+    try:
+        driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0").click()
+    except selenium.common.exceptions.ElementNotInteractableException:
+        driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
+        return
     driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
+
 
 def wait_and_reload(driver, length, reload_times, search_type, search_value):
     i = 1
@@ -89,11 +95,11 @@ def wait_loading_finished(driver, time_before_start):
     loading_finished = True
     try:
         while seconds < 15:
+            print("loading")
             loading_finished = True
             loading_elements = driver.find_elements_by_class_name("dxpnlLoadingPanelWithContent_EnEffCo")
            #print(len(loading_elements))
             for element in loading_elements:
-                print(element.value_of_css_property("position"))
                 if element.value_of_css_property("position") == "absolute":
                     loading_finished = False
             if loading_finished:
@@ -103,6 +109,24 @@ def wait_loading_finished(driver, time_before_start):
         return False
     except selenium.common.exceptions.StaleElementReferenceException:
         return wait_loading_finished(driver, 2)
+
+# searches all entry in the evaluatin tab for a diagram with the name "diagram_name"
+# the browser need to be in the evaluation tab before the function is called
+# ignores public diagrams
+# return: the corresponding web element if successful, else None
+def find_diagram_in_evaluation_tab(driver, diagram_name):
+    evaluation_tab = driver.find_element_by_xpath(".//*[@id = 'SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_InstContentPanel_InstFolderDisplay_InstFolderDisplayCP_collapsiblePanel_content']/div[1]")
+    i = 1
+    while True:
+        print(i)
+        diagram = evaluation_tab.find_elements_by_xpath(".//div[" + str(i) + "]/div[2]/span")
+        if len(diagram) == 0:
+            return None
+        if len(evaluation_tab.find_elements_by_xpath(".//div[" + str(i) + "]/div[1]/img[2]")) > 0:
+            print("private")
+            if diagram[0].text == diagram_name:
+                return diagram[0]
+        i += 1
 
 
 

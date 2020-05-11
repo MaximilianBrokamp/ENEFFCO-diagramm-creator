@@ -11,8 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from pynput.keyboard import Key, Controller
 from selenium.webdriver import ActionChains
 import os
-import copy
-
+import traceback
 
 def init_driver(url):
     options = webdriver.ChromeOptions()
@@ -104,10 +103,6 @@ def get_all_plants(driver, retry):
         list_all_plants.append([plant_code, plant_description])
     af.go_to_ChartPage(driver)
     return list_all_plants
-
-
-
-    return []
 
 def get_plants_with_exiting_diagram(driver, diagram_name):
     af.go_to_ChartPage(driver)
@@ -207,25 +202,31 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
     print(len(plants_with_exiting_diagram))
     return plants_with_exiting_diagram
 
-def new_diagram(driver, plant_code, diagram_name, template_path):
-    # quick test for creating a diagram
+def new_diagram(driver, plant_code, diagram_name, template_path, codes_to_replace, diagram_type):
+    try:
+        driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0").click()
+    except selenium.common.exceptions.ElementNotInteractableException:
+        driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
+    af.wait_loading_finished(driver, 1)
+
+    #write current plant code into the search box
     search_plant_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I')
-
-
     search_plant_box.send_keys(plant_code)
+    time.sleep(1)
+    search_plant_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I')
     search_plant_box.send_keys(Keys.ENTER)
 
     time.sleep(2)
     # the id describes the first entry in the search
-    # the id for the first entry should stay the same no matter the input.
+    # allways cklicks on the first entry of the list, as it should be the entry corresponding to the current plant code
     plant_icon = driver.find_element_by_xpath("// *[ @ id = 'SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_D'] / tbody/tr[3]")
     plant_icon.click()
-
+    af.wait_loading_finished(driver, 1)
     #click on Datapoints drop down button and check for special Datapoints (those that dont have the plant codes at the beginning)
     #af.waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_InstContentPanel_DescsGrid_InstDescsCP")
     #time.sleep(2)
     #driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_InstContentPanel_DescsGrid_InstDescsCP").click()
-    time.sleep(1)
+
     #     data_row_number = 0
     # special_datapoints = []
     # while True:
@@ -240,6 +241,7 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
     #     else:
     #         break
     # time.sleep(2)
+    af.wait_loading_finished(driver, 2)
     upload_definition_button = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_InstContentPanel_InstFolderDisplay_InstFolderDisplayCP_ctl00_ctl00_ctl00')
     upload_definition_button.click()
 
@@ -257,8 +259,43 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
 
 
     af.waitForElement(driver, 10, By.ID, "contentDlgSaveAs")
+
+    # wirtes the diagram_name into the name field
+    Name_field = driver.find_element_by_xpath("//*[@id='contentDlgSaveAsNewName']")
+    Name_field.clear()
+    Name_field.send_keys(diagram_name)
+    # enter press to confirm upload
     keyboard.press(Key.enter)
     keyboard.release(Key.enter)
+
+    af.wait_loading_finished(driver, 1)
+    #checks if the name of the diagram is the same as the one displayed in the content tab
+    #if they are not the same there is already a diagram with this name and the current one is a ducplicate, which will be delete
+    if diagram_name != driver.find_element_by_xpath(".//*[@id='SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1']/table/tbody/tr/td[2]").text:
+        diagram_name = driver.find_element_by_xpath(".//*[@id='SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1']/table/tbody/tr/td[2]").text
+        driver.find_element_by_xpath(".//*[@id='SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1']/table/tbody/tr/td[3]").click()
+        af.wait_loading_finished(driver, 1)
+        diagram = af.find_diagram_in_evaluation_tab(driver, diagram_name)
+        if diagram is not None:
+            actionChains = ActionChains(driver)
+            actionChains.context_click(diagram).perform()
+            #actionChains.send_keys(Keys.ARROW_DOWN).send_keys(Keys.ARROW_DOWN).send_keys(Keys.ENTER)
+            #actionChains.perform()
+            context_menus = driver.find_elements_by_class_name("context-menu-list")
+            for context_menu in context_menus:
+                if context_menu.get_attribute("style") == "display: none;":
+                    continue
+                context_menu.find_element_by_xpath(".//li[2]").click()
+                time.sleep(1)
+                keyboard.press(Key.enter)
+                keyboard.release(Key.enter)
+                af.wait_loading_finished(driver, 1)
+                return 2, "diagram already exists"
+        else:
+            return 3, "found no matching diagram to delete"
+
+
+
 
     af.wait_loading_finished(driver, 5)
     #af.waitForElement(driver, 30, By.ID,"SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_BindingsCollapsibelPanel_NamedRefCtrl_CBPanel_Grid_DXFREditorcol0_B-1")
@@ -312,10 +349,13 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
 
     row_number = 0
     diagram_datapoint_list = []
-    codes_to_replace = ["ACO.001", "STO.003"]
     while True:
-        row_id = "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_BindingsCollapsibelPanel_NamedRefCtrl_CBPanel_Grid_DXDataRow" + str(
-            row_number)
+        if diagram_type == "dashboard":
+            row_id = "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_BindingsCollapsibelPanel_NamedRefCtrl_CBPanel_Grid_DXDataRow" + str(row_number)
+        elif diagram_type == "chart":
+            row_id = "SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_ChartContentControlPanel_SettingsCtrl_ChartSettingsCallbackPanel_ChartSettingsCollapsiblePanel_BindingsCollapsible_NamedRefCtrl_CBPanel_Grid_DXDataRow" + str(row_number)
+        else:
+            return 3, "no, valid diagram type"
         current_datapoint = driver.find_elements(By.ID, row_id)
         if len(current_datapoint) != 0:
             # print(current_datapoint.text)
@@ -325,10 +365,11 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
                 datapoint_drop_location_xpath = str("//*[@id='" + row_id + "']/td[6]")
                 datapoint_code = datapoint.text
                 datapoint_description = driver.find_element_by_xpath(str("//*[@id='" + row_id + "']/td[3]")).text
-                # print(datapoint)
+                print("vorher: ",datapoint_code)
                 for code in codes_to_replace:
+                    print("code: ",code)
                     datapoint_code = datapoint_code.replace(code, "")
-                # print(datapoint)
+                print("nachher: ", datapoint_code)
                 diagram_datapoint_list.append([datapoint_code, datapoint, datapoint_drop_location_xpath, datapoint_description])
             row_number += 1
         else:
@@ -372,13 +413,12 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
 
 
     # clicking on the "Einstellungen übernehmen" button
-    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_ctl00_DashSettingsToolbar_commitSettings").click()
+    #driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_DashSettingsCallbackPanel_DashSettingsCollapsiblePanel_ctl00_DashSettingsToolbar_commitSettings").click()
+    driver.find_element_by_xpath(".//*[@title = 'Einstellungen übernehmen']").click()
     af.wait_loading_finished(driver, 2)
-    #TODO
-    # check if the diagram has sub diagrams
-    # class = dxsplPane_EnEffCo dashTilePane ui-droppable
-    sub_diagrams = driver.find_elements_by_class_name("dashTilePane ")
+    sub_diagrams = driver.find_elements_by_class_name("dashTilePane")
     print(len(sub_diagrams))
+    retry = False
     if len(sub_diagrams) > 0:
         i = 0
         while True:
@@ -387,22 +427,66 @@ def new_diagram(driver, plant_code, diagram_name, template_path):
             actionChains = ActionChains(driver)
             actionChains.double_click(sub_diagrams[i]).perform()
             delete_wrong_datapoints(driver, datapoints_to_delete)
+            if len(driver.find_elements_by_class_name("dashTilePane")) > 0:
+                if retry:
+                    return 2, "could not delete wrong datapoints, diagram not published"
+                retry = True
+                sub_diagrams = driver.find_elements_by_class_name("dashTilePane")
+                continue
             driver.find_element_by_xpath("//*[contains(@title,'Zurück')]").click()
             af.wait_loading_finished(driver, 1)
-            sub_diagrams = driver.find_elements_by_class_name("dashTilePane ")
+            sub_diagrams = driver.find_elements_by_class_name("dashTilePane")
             i += 1
 
     else:
         driver.find_element_by_xpath("// *[ @ id = 'SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_ChartContentControlPanel_ChartControl_ChartEditorCallBackPanel_ChartEditorCollapsiblePanel'] /div[1] / table / tbody / tr / td[1]").click()
         delete_wrong_datapoints(driver, datapoints_to_delete)
+        af.wait_loading_finished(driver, 1)
 
+    # click save burron
     driver.find_element_by_xpath("//*[@title='Speichern']").click()
     af.wait_loading_finished(driver, 1)
     #diagram_tab = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1")
     #diagram_tab = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1")
-    close_button = driver.find_element_by_xpath("//*[@id = 'SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1']/table/tbody/tr/td[3]")
-    close_button.click()
+    # close the Diagramm view
+    time.sleep(4)
+    tab_control = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1")
 
+    #diagram_name = tab_control.find_element_by_xpath(".//table/tbody/tr/td[2]").text
+    #print(tab_control.find_element_by_xpath(".//table/tbody/tr/td[2]"))
+    #print(diagram_name)
+    tab_control.find_element_by_xpath(".//table/tbody/tr/td[3]").click()
+    af.wait_loading_finished(driver, 1)
+    keyboard.press(Key.enter)
+    keyboard.release(Key.enter)
+    #close_button = driver.find_element_by_xpath("//*[@id = 'SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1']/table/tbody/tr/td[3]")
+    #close_button.click()
+    af.wait_loading_finished(driver, 1)
+    evaluation_tab = driver.find_element_by_xpath(".//*[@id = 'SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_InstContentPanel_InstFolderDisplay_InstFolderDisplayCP_collapsiblePanel_content']/div[1]")
+    #i = 1
+    #while True:
+    #    print(i)
+    #    diagram = evaluation_tab.find_elements_by_xpath(".//div[" + str(i) + "]/div[2]/span")
+    #    if len(diagram) == 0:
+    #        break
+    #    print(diagram)
+    #    print("len: ", len(diagram))
+    #    #current_diagram_name = diagram[i].find_element_by_xpath(".//div[2]/span").text
+    #    print(diagram[0].text)
+    diagram = af.find_diagram_in_evaluation_tab(driver, diagram_name)
+    if diagram is not None:
+        actionChains = ActionChains(driver)
+        actionChains.context_click(diagram)
+        actionChains.perform()
+        context_menus = driver.find_elements_by_class_name("context-menu-list")
+        for context_menu in context_menus:
+            if context_menu.get_attribute("style") == "display: none;":
+                continue
+            context_menu.find_element_by_xpath(".//li[5]").click()
+            af.wait_loading_finished(driver, 1)
+            return 0, "diagram created successfuly"
+    #    i += 1
+    return 1, "could not publish created diagarm"
 
 
 
@@ -427,7 +511,7 @@ def delete_wrong_datapoints(driver, datapoints_to_delete):
                 print("cueen_datapoint_code value:  ", current_datapoint_code)
                 if current_datapoint_code_value.endswith(datapoint):
                     delete_buttons[i].click()
-                    time.sleep(1)
+                    af.wait_loading_finished(driver, 1)
                     current_datapoint_code = driver.find_elements_by_class_name("grid-cell-long-text")
                     delete_buttons = driver.find_elements_by_xpath("//*[@title ='Entfernen']")
                     i -= 1
@@ -439,6 +523,7 @@ def delete_wrong_datapoints(driver, datapoints_to_delete):
         if len(html_button) > 0:
             driver.switch_to.frame("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentPanel_ctl07_DashCallback_Content_ctl00_HtmlEditCP_HtmlEditCBPanel_Editor_DesignIFrame")
             #table = driver.find_element_by_xpath("/html/body/table")
+            af.wait_loading_finished(driver, 1)
             current_datapoints = driver.find_elements_by_class_name("dyntxttag")
             print("len current_datapoints: ", len(current_datapoints))
             i = 0
@@ -465,12 +550,16 @@ def main():
     print(diagram.template_path)
     driver = init_driver("https://ewus.eneffco.de/ChartPage.aspx")
     login(driver)
-    print(len(driver.window_handles))
     #all_plants = get_all_plants(driver, True)
     #plant_with_existing_diagrams = get_plants_with_exiting_diagram(driver, diagram.name)
-
-    new_diagram(driver, "EWU.004", "00_Anlagenüberwachung", diagram.template_path)
-
+    print(diagram.hierarchical_codes[0])
+    print(diagram.template_path)
+    try:
+        return_value = new_diagram(driver, "STO.001", diagram.name, diagram.template_path, diagram.hierarchical_codes, diagram.diagram_type)
+        print(return_value)
+    except:
+        tb = traceback.format_exc()
+        print(tb)
     af.checkIfWindowIsClosed(driver)
 
 
