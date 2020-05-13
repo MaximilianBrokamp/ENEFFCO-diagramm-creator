@@ -1,13 +1,15 @@
 # In this file you can specify all needed information about the diagram you want to create automatically
 # Lines Starting with an '#' count as a comment and thus will not be interpreted
 
-#diagram_type: 'dashboard'
-#diagram_name: '00 Anlagenüberwachung'
-#template_path: 'Templates\00 Anlagenüberwachung.EnEffCoDashBoard'
-#hierarchical_codes_template: 'ACO.001, STO.003'
+#valid diagram types: dashboard, chart
 
-#valid types: dashboard, chart
-diagram_type: 'chart'
-diagram_name: '02_Sommerabschaltung'
-template_path: 'Templates\01_Sommerabschaltung.EnEffCoChart'
-hierarchical_codes_template: 'EWU.004'
+diagram_type: 'dashboard'
+diagram_name: '00 Anlagenüberwachung'
+template_path: 'Templates\00 Anlagenüberwachung.EnEffCoDashBoard'
+hierarchical_codes_template: 'ACO.001, STO.003'
+
+
+#diagram_type: 'chart'
+#diagram_name: '02_Sommerabschaltung'
+#template_path: 'Templates\02_Sommerabschaltung.EnEffCoChart'
+#hierarchical_codes_template: 'STO.001'
