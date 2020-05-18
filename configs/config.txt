@@ -2,11 +2,13 @@
 # Lines Starting with an '#' count as a comment and thus will not be interpreted
 
 #valid diagram types: dashboard, chart
-
 diagram_type: 'dashboard'
 diagram_name: '00 Anlagenüberwachung'
-template_path: 'Templates\00 Anlagenüberwachung.EnEffCoDashBoard'
+template_path: 'templates\00 Anlagenüberwachung.EnEffCoDashBoard'
 hierarchical_codes_template: 'ACO.001, STO.003'
+#if a plant code contains one element in the ignore list it will be ignored
+#ignore can be a complete code (e.g 'AES.406') of just part of a code (e.g 'AES' or '406')
+ignore: 'AES, ACO'
 
 
 #diagram_type: 'chart'

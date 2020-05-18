@@ -8,7 +8,7 @@ import class_diagram
 from class_diagram import diagram
 
 
-def load_config(relative_file_path = "..\config.txt"):
+def load_config(relative_file_path = "..\configs\config.txt"):
     valid_diagram_types = ["dashboard", "chart"]
     try:
         config_file = open(relative_file_path, "r", encoding="utf-8")
@@ -47,6 +47,11 @@ def load_config(relative_file_path = "..\config.txt"):
             for i in range(len(datapoints_array)):
                 datapoints_array[i] = datapoints_array[i].lstrip(' ')
             di.special_datapoints = datapoints_array
+        elif line_split[0] == 'ignore':
+            ignore_list = line_split[1].split('\'', 2)[1].split(',')
+            for i in range(len(ignore_list)):
+                ignore_list[i] = ignore_list[i].lstrip(' ')
+            di.set_ignore(ignore_list)
         else:
             print("incorrect config")
             #print(line)

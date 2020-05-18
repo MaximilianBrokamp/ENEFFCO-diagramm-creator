@@ -9,6 +9,7 @@ class diagram:
         self.special_datapoints = special_datapoints
         self.plants_with_created_diagram = []
         self.diagram_type = ""
+        self.ignore_list = []
 
     def set_name(self, name):
         self.name = name
@@ -16,5 +17,6 @@ class diagram:
         self.plants_with_created_diagram.append(data)
     def set_type(self, diagram_type):
         self.diagram_type = diagram_type
-
+    def set_ignore(self, ignore_list):
+        self.ignore_list = ignore_list
 

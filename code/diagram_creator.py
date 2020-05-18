@@ -1,7 +1,9 @@
 import load_config
 import additional_functions as af
 import time
-import selenium
+import os
+
+from datetime import datetime
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 import selenium.common.exceptions as exceptions
@@ -10,22 +12,22 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from pynput.keyboard import Key, Controller
 from selenium.webdriver import ActionChains
-import os
-import traceback
-from datetime import datetime
-from datetime import timedelta
 
+
+#starts the chrome dirver and opens the website defined in "url"
+#additionally chages the download directory
 def init_driver(url):
     options = webdriver.ChromeOptions()
+    relativer_exe_path = "../Webdrivers/chromedriver.exe"
+    abs_exe_path = os.path.abspath(relativer_exe_path)
     path = os.path.abspath('../download')
-    prefs = {'download.default_directory' : path}
+    prefs = {'download.default_directory': path}
     options.add_experimental_option('prefs', prefs)
     #options.add_argument("=")
 
-    driver = webdriver.Chrome(chrome_options=options)
+    driver = webdriver.Chrome(executable_path=abs_exe_path, options=options)
     driver.maximize_window()
     driver.get(url)
-
     return driver
 
 def login(driver):
@@ -61,7 +63,6 @@ def login(driver):
 #downloads the definition file with all plants in it
 #the retry variable indicates if after a failed download attempt the process should be executed again
 def get_all_plants(driver, retry):
-
     list_all_plants = []
     af.go_to_ChartPage(driver)
     path = os.path.abspath('../download')
@@ -75,7 +76,7 @@ def get_all_plants(driver, retry):
     hover = ActionChains(driver)
     hover.move_to_element(contex_menu)
     hover.perform()
-    csv_download_button = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_DefinitionLeftCtrl_DefinitionLeftPanel_PlaceHolder_ctl00_ctl00_InstLeftTreeCollapsiblePanel_ctl00_ctl00_ToolbarItemMore_ToolbarItemCSVDownload").click()
+    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_DefinitionLeftCtrl_DefinitionLeftPanel_PlaceHolder_ctl00_ctl00_InstLeftTreeCollapsiblePanel_ctl00_ctl00_ToolbarItemMore_ToolbarItemCSVDownload").click()
     if not af.download_wait(path, "InstallDefListExport.csv"):
         if not retry:
             #TODO
@@ -98,7 +99,6 @@ def get_all_plants(driver, retry):
         if len(plant_code) == 7 and plant_code[3] == ".":
             print(plant_code)
             list_all_plants.append(plant_code)
-    af.go_to_ChartPage(driver)
     return list_all_plants
 
 def get_plants_with_exiting_diagram(driver, diagram_name):
@@ -106,16 +106,6 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
 
     af.wait_and_reload(driver, 10, 2, By.XPATH,"//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_ctl00_ctl00_ctl03']/img")
     search_for_analysis_button = driver.find_element_by_xpath("//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_ctl00_ctl00_ctl03']/img")
-#    if len(search_for_analysis_button) < 1:
-#        af.go_to_ChartPage(driver)
-#        if not af.waitForElement(driver, 10, By.XPATH,"//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_ctl00_ctl00_ctl03']/img"):
-#            return False
-#            #TODO
-#            # Throw exception
-#        search_for_analysis_button = driver.find_element_by_xpath(
-#            "//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_ctl00_ctl00_ctl03']/img")
-#    else:
-#        search_for_analysis_button = search_for_analysis_button[0]
 
 
     search_for_analysis_button.click()
@@ -168,16 +158,9 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
 
         # after the first Iteration the path to the next icon changes
         first_iteration = False
-
-            #driver.find_element_by_
-            #next_page_button = driver.find_elements(By.XPATH,
-            #                                        "//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_DXPagerBottom']/a[4]/img")
         next_page_button = driver.find_elements_by_class_name("dxp-bi")
         diabled = driver.find_elements_by_class_name("dxp-disabledButton")
 
-        #else:
-        #    next_page_button = driver.find_elements(By.XPATH,
-        #                                            "//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_DXPagerBottom']/a[5]/img")
         print(len(next_page_button))
         end = False
         for d in diabled:
@@ -187,23 +170,16 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
             break
 
         next_page_button[1].click()
-        af.waitForElement(driver, 10, By.ID,
-                       "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_tccell" + str(row_number) + "_0")
+        af.waitForElement(driver, 10, By.ID,"SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_tccell" + str(row_number) + "_0")
         time.sleep(1)
-    driver.find_element_by_id(
-        "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_DXFREditorcol2_I").clear()
+    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_Panel_Grid_DXFREditorcol2_I").clear()
 
-    driver.find_element_by_xpath(
-        "//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_PWH-1']/table/tbody/tr/td[2]/img").click()
+    driver.find_element_by_xpath("//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_PWH-1']/table/tbody/tr/td[2]/img").click()
     print(len(plants_with_exiting_diagram))
     return plants_with_exiting_diagram
 
 def new_diagram(driver, plant_code, diagram_name, template_path, codes_to_replace, diagram_type):
-    #trys to click on the plant button, in the upper left corner, to get to the necessary starting position
-    #try:
-    #    driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0").click()
-    #except selenium.common.exceptions.ElementNotInteractableException:
-    #    driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_InstTreeDisplay_DXSE_I').clear()
+
     af.go_to_ChartPage(driver)
     af.wait_loading_finished(driver, 1)
 
@@ -358,6 +334,7 @@ def search_for_plant(driver, plant_code):
     af.wait_loading_finished(driver, 1)
     return True
 
+
 # uploads the defintion of the diagram
 # the correct plant needs to be already selcted
 # returns True if it works, false if it dosen't
@@ -401,9 +378,13 @@ def upload_defintion(driver, template_path, diagram_name):
     Name_field = driver.find_element_by_xpath("//*[@id='contentDlgSaveAsNewName']")
     Name_field.clear()
     Name_field.send_keys(diagram_name)
+    save_as_private = driver.find_element_by_xpath(".//*[@value = 'private']")
+    save_as_private.click()
     # enter press to confirm upload
-    keyboard.press(Key.enter)
-    keyboard.release(Key.enter)
+    #keyboard.press(Key.enter)
+    #keyboard.release(Key.enter)
+    save_button = driver.find_element_by_xpath(".//*[text() = 'Speichern'][ @type='button']")
+    save_button.click()
     af.wait_loading_finished(driver, 1)
     return True
 
@@ -493,7 +474,7 @@ def replace_datapoints(driver, plant_code, diagram_type, codes_to_replace):
         if not datapoint_found:
             datapoints_to_delete.append(diagram_datapoint[0])
     print("datapoints_to_delete: ", datapoints_to_delete)
-    number_datapoints = len(datapoint_list)
+    number_datapoints = len(diagram_datapoint_list)
     number_not_matching_datapoints = len(datapoints_to_delete)
 
     if number_datapoints == number_not_matching_datapoints:
@@ -556,115 +537,4 @@ def delete_wrong_datapoints(driver, datapoints_to_delete):
     af.wait_loading_finished(driver, 2)
 
 
-def main():
-    start = datetime.now()
-    config_file_path = "..\config.txt"
-    diagram = load_config.load_config(config_file_path)
-    driver = init_driver("https://ewus.eneffco.de/ChartPage.aspx")
-    login(driver)
 
-    #for testing
-    #return_value = new_diagram(driver, "STO.001", diagram.name, diagram.template_path, diagram.hierarchical_codes, diagram.diagram_type)
-    #print(return_value)
-    #af.checkIfWindowIsClosed(driver)
-
-    # get a list of all plants
-    all_plants = get_all_plants(driver, True)
-
-    # get a list with all plants that already have the specified diagram
-    plant_with_diagrams = get_plants_with_exiting_diagram(driver, diagram.name)
-
-    # create a list of plants that need the specified diagram
-    plants_without_diagram = []
-    print(all_plants)
-    print(plant_with_diagrams)
-    for plant in all_plants:
-        if plant not in plant_with_diagrams:
-            plants_without_diagram.append(plant)
-
-    number_diagrams_to_create = len(plants_without_diagram)
-    number_successfully_created_diagrams = 0
-    number_failed_diagrams = 0
-    number_Warnings = 0
-
-    print("all plants len: " + str(len(all_plants)))
-    print("plants with diagram len: " + str(len(plant_with_diagrams)))
-    print("plants without diagram len: " + str(len(plants_without_diagram)))
-    for plant in plants_without_diagram:
-        #exit loop after three runs for test purposes
-        if plant == plants_without_diagram[3]:
-            break
-
-        start_diagram = datetime.now()
-        try:
-            return_value = new_diagram(driver, plant, diagram.name, diagram.template_path, diagram.hierarchical_codes, diagram.diagram_type)
-            print(return_value)
-            print(type(return_value[0]))
-            finished_diagram = datetime.now()
-            delta = finished_diagram - start_diagram
-            duration_diagram = delta.total_seconds()
-            message = ""
-            data = []
-            if return_value[0] == 0:
-                number_successfully_created_diagrams +=1
-                message = return_value[1] + ", " + str(return_value[3]) + " out of " + str(return_value[2]) + " datapoints from the template could be replaced "
-                data = [plant, return_value[0], message,  datetime.now(), duration_diagram]
-            elif return_value[0] == 1:
-                number_successfully_created_diagrams += 1
-                number_Warnings += 1
-                message = "diagram created Successfully, !WARNING: " + return_value[1] + "!," + str(return_value[3]) + " out of " + str(return_value[2]) + " datapoints from the template could be replaced"
-                data = [plant, return_value[0], message, datetime.now(), duration_diagram]
-            elif return_value[0] == 2:
-                number_failed_diagrams += 1
-                message = "!!!ERROR Could not create diagram!!! : " + return_value[1]
-                data = [plant, return_value[0], message, datetime.now(), duration_diagram]
-            diagram.add_plant(data)
-        except:
-            finished_diagram = datetime.now()
-            delta = finished_diagram - start_diagram
-            duration_diagram = delta.total_seconds()
-            tb = traceback.format_exc()
-            print(tb)
-            number_failed_diagrams += 1
-            message = "!!!ERROR!!! Ecxeption:" + tb.replace("\n", " ")
-            data = [plant, 3, message, datetime.now(), duration_diagram]
-            diagram.add_plant(data)
-
-    number_created_diagrams = len(diagram.plants_with_created_diagram)
-    task_complete = False
-    if number_created_diagrams == number_diagrams_to_create:
-        task_complete = True
-    end = datetime.now()
-
-    duration = round((end - start).total_seconds()/60, 2)
-
-    #generate report
-    report_loccation = os.path.abspath("../Reports")
-    report_name = "report " + diagram.name + "_" + str(datetime.date(datetime.now())) + ".txt"
-    report_path = os.path.join(report_loccation, report_name)
-    report = open(report_path, "w")
-
-    beginning = "Report for diagram : " + diagram.name + "\n"
-    beginning += "associated Config File: " + config_file_path + "\n"
-    beginning += "\n"
-    beginning += "Task Complete: " + str(task_complete) + "     " + str(number_created_diagrams) + " out of " + str(number_diagrams_to_create) + "(" + str(round(((number_created_diagrams/number_diagrams_to_create)*100), 2)) + "%) " + "processed    total time: " + str(round(duration, 1)) + "\n"
-    beginning += str(number_failed_diagrams) + " FAILED    " + str(number_successfully_created_diagrams) + " Successfully created    " + str(number_Warnings) + " WARNINGS \n\n"
-    report.write(beginning)
-    i = 1
-    line = ""
-    for plant in diagram.plants_with_created_diagram:
-        print(plant)
-        line = str(i) + ".   plant code: " + plant[0] + "    time: " + str(plant[3]) + "    duration:" + str(plant[4]) + "    " + plant[2] + "\n"
-        i += 1
-        report.write(line)
-
-    report.close()
-    af.checkIfWindowIsClosed(driver)
-
-
-
-
-
-
-if  __name__ == "__main__":
-    main()

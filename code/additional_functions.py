@@ -36,6 +36,9 @@ def waitForElement(driver, length, search_type, search_value):
         return False
     return True
 
+
+#cheks if a web elment exist
+#returns True if it exist, otherwise false
 def check_existence(driver, search_type, search_value):
     try:
         driver.find_element(search_type, search_value)
@@ -50,6 +53,12 @@ def go_to_ChartPage(driver):
     waitForElement(driver, 10 , By.XPATH, "// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]")
     driver.find_element_by_xpath("// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[4]").click()
     waitForElement(driver, 10, By.ID, "SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_AT0")
+
+    #closes the active diagram tab, should it exist
+    tab_control = driver.find_elements_by_id("SplitMain_ContentPlaceHolderBodyRight_ContentTabControl_ContentTabCallBackPanel_ContentTab_AT1")
+    if len(tab_control) > 0:
+        tab_control[0].find_element_by_xpath(".//table/tbody/tr/td[3]").click()
+
     try:
         driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderTabs_T0").click()
         wait_loading_finished(driver, 1)
@@ -75,6 +84,8 @@ def wait_and_reload(driver, length, reload_times, search_type, search_value):
     driver.quit()
     return False
 
+#waits until a file is completle downloaded
+#waits a maximum of 10 seconds
 def download_wait(path_to_downloads, filename):
     seconds = 0
     dl_wait = True
