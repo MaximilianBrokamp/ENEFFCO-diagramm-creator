@@ -113,8 +113,8 @@ def main():
         start_diagram = datetime.now()
         try:
             return_value = diagram_creator.new_diagram(driver, plant, diagram.name, diagram.template_path, diagram.hierarchical_codes, diagram.diagram_type)
+            print("plant code: ", plant)
             print(return_value)
-            print(type(return_value[0]))
             finished_diagram = datetime.now()
             delta = finished_diagram - start_diagram
             duration_diagram = delta.total_seconds()

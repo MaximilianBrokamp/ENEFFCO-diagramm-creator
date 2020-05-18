@@ -30,12 +30,8 @@ def check_all_files():
     path_to_check = os.path.join(program_root_directory, "webdrivers")
     if not os.path.exists(path_to_check + "/chromedriver.exe"): everything_existing = False, missing.append({"type": "file", "name": "chromedriver.py", "path": path_to_check})
 
-
     if not everything_existing:
         print(missing)
-        return [False, missing]
+        return False, missing
+    return True, missing
 
-    return [True]
-
-
-check_all_files()
