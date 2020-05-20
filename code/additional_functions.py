@@ -13,7 +13,7 @@ def checkIfWindowIsClosed(driver):
     while True:
         try:
             whandle = driver.window_handles
-            time.sleep(0.2)
+            time.sleep(0.1)
         except selenium.common.exceptions.WebDriverException:
             print("Chrome Window closed")
             exit(1)

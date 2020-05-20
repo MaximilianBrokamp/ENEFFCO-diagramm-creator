@@ -157,5 +157,5 @@ def main():
                   number_ignored, number_Warnings)
 
 
-if  __name__ == "__main__":
+if __name__ == "__main__":
     main()

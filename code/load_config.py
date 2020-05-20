@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
 import class_diagram
-#import class_diagram
 # loads the config file (in which the config to a diagram is described)
 # if the config file is syntactically correct it saves the data in a diagram object and returns that.
 # Otherwise it throws an ... exception
