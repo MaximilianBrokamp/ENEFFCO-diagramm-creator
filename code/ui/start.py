@@ -14,7 +14,8 @@ class Logic(baseUIWidget, baseUIClass):
         super(Logic, self).__init__(parent)
         self.setupUi(self)
         # connects
-        self.start_button.clicked.connect(self.button_close)
+        self.actionQuit.triggered.connect(self.close_program)
+        self.start_button.clicked.connect(self.button_start)
 
     # cheks if all necessary files are existing and in the right place
     # it will display the result in a text box
@@ -24,12 +25,24 @@ class Logic(baseUIWidget, baseUIClass):
         if retrun_value[0]:
             self.check_files_text.setTextColor(QColor("darkGreen"))
             self.check_files_text.insertPlainText("All necessary files available \n you can now start")
+        else:
+            self.check_files_text.setTextColor(QColor("red"))
+            self.check_files_text.insertPlainText("ERROR: Missing Files\n\nMissing Files:")
+            for element in retrun_value[1]:
+                self.check_files_text.insertPlainText("\n")
+                for key in element:
+                    self.check_files_text.insertPlainText("      " + key + ": " + element[key] + "\n")
+
+
         #Todo
         # add else case
-    def button_close(self):
+    #opens the loading window and closes the current one
+    def button_start(self):
         ui_main.userinterface.create_login_window(self)
         self.close()
 
-
+    def close_program(self):
+        self.close()
+        exit(0)
 
 

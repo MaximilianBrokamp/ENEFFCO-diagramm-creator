@@ -23,6 +23,7 @@ class userinterface_class():
         self.login_window = login.Logic()
         self.login_window.setGeometry(geometry)
         self.login_window.show()
+        self.login_window.diplay_loading_movie()
 
 
 # creates an object of userinterface_class
