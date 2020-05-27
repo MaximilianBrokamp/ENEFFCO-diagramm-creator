@@ -46,7 +46,7 @@ def main():
 
     start = datetime.now()
     config_file_path = "..\configs\config.txt"
-    diagram = diagram_creator.load_config.load_config(config_file_path)
+    diagram = load_config.load_config(config_file_path)
     driver = diagram_creator.init_driver("https://ewus.eneffco.de/ChartPage.aspx")
     diagram_creator.login(driver)
     #for testing

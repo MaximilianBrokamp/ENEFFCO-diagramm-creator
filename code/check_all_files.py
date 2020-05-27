@@ -6,18 +6,17 @@ def check_all_files():
 
 
     current_directory = os.path.curdir
-    program_root_directory = os.path.abspath(os.path.join(current_directory, "../"))
-
+    program_root_directory = current_directory
+    # program_root_directory = os.path.abspath(os.path.join(current_directory, "../"))
     # cuts chars form the path until the ends in the root directory of the Program
     # !!! directory has to be named "ENEFFCO diagram creator" !!!
-    while True:
-        if len(program_root_directory) == 0:
-            return False, [{"Fatal: root directroy not foud"}]
-        if program_root_directory.endswith("diagramm-creator"):
-            break
-        else:
-            program_root_directory = program_root_directory[:len(program_root_directory)-1]
-    print(program_root_directory)
+    # while True:
+    #     if len(program_root_directory) == 0:
+    #         return False, [{"Fatal": "root directroy not found"}]
+    #     if program_root_directory.endswith("diagramm-creator"):
+    #         break
+    #     else:
+    #         program_root_directory = program_root_directory[:len(program_root_directory)-1]
     path_to_check = program_root_directory
     #check program root directory
     if not os.path.exists(path_to_check + "/code"): everything_existing = False; missing.append({"type": "directory", "name": "code", "path": path_to_check})
@@ -42,7 +41,8 @@ def check_all_files():
 
 
     #used to check if method works correct, file does and should not exist
-    if not os.path.exists(path_to_check + "/test"): everything_existing = False; missing.append({"type": "file", "name": "test", "path": path_to_check})
+    #if not os.path.exists(path_to_check + "/test"): everything_existing = False; missing.append({"type": "file", "name": "test", "path": path_to_check})
+
     #TODO
     # add all files that are missing
     print(missing)

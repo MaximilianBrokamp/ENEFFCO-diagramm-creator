@@ -1,15 +1,10 @@
-import load_config
-import additional_functions as af
+from code import additional_functions as af
 import time
 import os
 
-from datetime import datetime
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
-import selenium.common.exceptions as exceptions
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from pynput.keyboard import Key, Controller
 from selenium.webdriver import ActionChains
 
@@ -18,9 +13,9 @@ from selenium.webdriver import ActionChains
 #additionally chages the download directory
 def init_driver(url):
     options = webdriver.ChromeOptions()
-    relativer_exe_path = "../Webdrivers/chromedriver.exe"
-    abs_exe_path = os.path.abspath(relativer_exe_path)
-    path = os.path.abspath('../download')
+    relative_exe_path = "./webdrivers/chromedriver.exe"
+    abs_exe_path = os.path.abspath(relative_exe_path)
+    path = os.path.abspath('./download')
     prefs = {'download.default_directory': path}
     options.add_experimental_option('prefs', prefs)
     #options.add_argument("=")
@@ -36,36 +31,26 @@ def login(driver):
     # change login to manual after testing
     username_id_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_UserName')
     username_id_box.send_keys('m.brokamp')
-
     password_id_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_Password')
     password_id_box.send_keys('Sumpffeld00_')
 
     login_button = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_LoginButton')
     login_button.click()
-#    login_timer = datetime.now()
-    #driver.execute_script("alert('Bitte loggen Sie sich ein')")
-    #WebDriverWait(driver, 300).until(EC.invisibility_of_element_located((By.LINK_TEXT,"Bitte loggen Sie sich ein")))
-#   #TODO
-#   # throw exception
 
-
-    # wait's until the user logged in and the url changes to the one below
+ # wait's until the user logged in and the url changes to the one below
     # if the user hasn't logged in after five minutes it will raise exception and the script will terminate
-#    while driver.current_url != "https://ewus.eneffco.de/ChartPage.aspx":
-#        time.sleep(0.5)
-#        if datetime.now() - login_timer > 300:
-#            #TODO
-#            # throw exception
-#            return False
-#    return True
-# method downloads the Excel File with all Plants in it and saves them in a list
+    #while driver.current_url != "https://ewus.eneffco.de/ChartPage.aspx":
+    #    time.sleep(0.5)
+    return True
 
+
+# method downloads the Excel File with all Plants in it and saves them in a list
 #downloads the definition file with all plants in it
 #the retry variable indicates if after a failed download attempt the process should be executed again
 def get_all_plants(driver, retry):
     list_all_plants = []
     af.go_to_ChartPage(driver)
-    path = os.path.abspath('../download')
+    path = os.path.abspath('./download')
     if os.path.isfile(path + "/InstallDefListExport.csv"):
         os.remove(path + "/InstallDefListExport.csv")
 
@@ -79,17 +64,20 @@ def get_all_plants(driver, retry):
     driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_DefinitionLeftCtrl_DefinitionLeftPanel_PlaceHolder_ctl00_ctl00_InstLeftTreeCollapsiblePanel_ctl00_ctl00_ToolbarItemMore_ToolbarItemCSVDownload").click()
     if not af.download_wait(path, "InstallDefListExport.csv"):
         if not retry:
-            #TODO
-            # throw exception
-            return []
+            return None
         else:
             get_all_plants(driver, False)
 
     definition_file = open(path + "/InstallDefListExport.csv", "r")
-    for line in definition_file.readlines():
+    lines = definition_file.readlines()
+    for line in range[len(lines)]:
         line = line.split(";")
         if len(line) < 3:
             continue
+        if line[0] == "":
+            sub_list = []
+            sub_list.append(line[2])
+
         plant_description = line[2]
         plant_description = plant_description.split(" - ")
         plant_code = plant_description[0]

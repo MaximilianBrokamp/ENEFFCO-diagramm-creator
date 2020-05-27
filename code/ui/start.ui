@@ -68,7 +68,7 @@
        <font>
         <family>MS Serif</family>
         <pointsize>15</pointsize>
-        <stylestrategy>NoAntialias</stylestrategy>
+        <stylestrategy>PreferAntialias</stylestrategy>
         <kerning>false</kerning>
        </font>
       </property>
@@ -308,7 +308,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>560</width>
-     <height>18</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">

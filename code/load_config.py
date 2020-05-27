@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
-import class_diagram
+from code import class_diagram
+from code.class_diagram import diagram
+
 # loads the config file (in which the config to a diagram is described)
 # if the config file is syntactically correct it saves the data in a diagram object and returns that.
-# Otherwise it throws an ... exception
-from class_diagram import diagram
 
 
-def load_config(relative_file_path = "..\configs\config.txt"):
-    valid_diagram_types = ["dashboard", "chart"]
+def load_config(file_name):
     try:
-        config_file = open(relative_file_path, "r", encoding="utf-8")
+        config_file = open(os.path.abspath("./configs/" + file_name), "r", encoding="utf-8")
     except FileNotFoundError:
         exit(1)
     di = class_diagram.diagram()
+    di.config_file_name = file_name
     for line in config_file.readlines():
 
         line = line.lstrip(' ')
@@ -22,38 +22,42 @@ def load_config(relative_file_path = "..\configs\config.txt"):
             continue
         line_split = line.split(':', 1)
         if line_split[0] == "diagram_name":
-            name = line_split[1].split('\'', 2)[1]
-            di.set_name(name)
-        elif line_split[0] == "template_path":
-            relative_template_path = "../" + line_split[1].split('\'', 2)[1]
-            di.template_path = os.path.abspath(relative_template_path)
-        elif line_split[0] == "diagram_type":
-            type = line_split[1].split('\'', 2)[1]
-            if type in valid_diagram_types:
-                di.set_type(type)
-            else:
-                print("incorrect config")
-                #TODO
-                # Throw incorrect config exception
+            diagram_name = line_split[1].split('\'', 2)[1]
+            di.set_diagram_name(diagram_name)
+        elif line_split[0] == "template_file":
+            template_file = line_split[1].split('\'', 2)[1]
+            relative_template_path = "./templates/" + template_file
+            template_path = os.path.abspath(relative_template_path)
+            if os.path.isfile(template_path):
+                if template_path.endswith("EnEffCoDashBoard"):
+                    di.diagram_type = "dashboard"
+                elif template_path.endswith("EnEffCoChart"):
+                    di.diagram_type = "chart"
+                else:
+                    return None
+                di.template_path = template_path
+                di.template_file = template_file.split(".")[0]
         elif line_split[0] == "hierarchical_codes_template":
             code_array = line_split[1].split('\'', 2)[1].split(',')
             for i in range(len(code_array)):
                 code_array[i] = code_array[i].lstrip(' ')
                 print(code_array[i])
                 di.hierarchical_codes.append(code_array[i])
-        elif line_split[0] == 'special_datapoints':
-            datapoints_array = line_split[1].split('\'', 2)[1].split(',')
-            for i in range(len(datapoints_array)):
-                datapoints_array[i] = datapoints_array[i].lstrip(' ')
-            di.special_datapoints = datapoints_array
         elif line_split[0] == 'ignore':
             ignore_list = line_split[1].split('\'', 2)[1].split(',')
             for i in range(len(ignore_list)):
                 ignore_list[i] = ignore_list[i].lstrip(' ')
             di.set_ignore(ignore_list)
+        elif line_split[0] == 'select':
+            select_list = line_split[1].split('\'', 2)[1].split(',')
+            for i in range(len(ignore_list)):
+                select_list[i] = ignore_list[i].lstrip(' ')
+            di.set_select(ignore_list)
+        elif line_split[0] == 'report_name':
+            report_name = line_split[1].split('\'', 2)[1]
+            di.set_report_name(report_name)
+
         else:
             print("incorrect config")
-            #print(line)
-            #TODO
-            #Throw incorrect config exception
+            return None
     return di

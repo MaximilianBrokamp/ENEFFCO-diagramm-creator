@@ -1,12 +1,11 @@
-from PyQt5 import  QtWidgets
 from PyQt5 import uic
-import ui_main
-import check_all_files
 from PyQt5.QtGui import QColor
 
-
+from code.ui import ui_main
+from code import check_all_files
+from PyQt5 import  QtCore
 # load ui file
-baseUIClass, baseUIWidget = uic.loadUiType("start.ui")
+baseUIClass, baseUIWidget = uic.loadUiType("./code/ui/start.ui")
 
 # use loaded ui file in the logic class
 class Logic(baseUIWidget, baseUIClass):
@@ -15,13 +14,13 @@ class Logic(baseUIWidget, baseUIClass):
         self.setupUi(self)
         # connects
         self.actionQuit.triggered.connect(self.close_program)
-        self.start_button.clicked.connect(self.button_start)
-
+        self.start_button.clicked.connect(self.start_button_click)
     # cheks if all necessary files are existing and in the right place
     # it will display the result in a text box
     # if the reult is negative it will also deactivate the "Start" Button and ask the user to close the program
     def display_file_check(self):
         retrun_value = check_all_files.check_all_files()
+        print(retrun_value)
         if retrun_value[0]:
             self.check_files_text.setTextColor(QColor("darkGreen"))
             self.check_files_text.insertPlainText("All necessary files available \n you can now start")
@@ -32,14 +31,13 @@ class Logic(baseUIWidget, baseUIClass):
                 self.check_files_text.insertPlainText("\n")
                 for key in element:
                     self.check_files_text.insertPlainText("      " + key + ": " + element[key] + "\n")
+            self.start_button.setEnabled(False)
 
-
-        #Todo
-        # add else case
     #opens the loading window and closes the current one
-    def button_start(self):
+    def start_button_click(self):
         ui_main.userinterface.create_login_window(self)
         self.close()
+        ui_main.userinterface.init_driver_wrapper()
 
     def close_program(self):
         self.close()
