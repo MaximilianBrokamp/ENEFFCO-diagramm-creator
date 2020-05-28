@@ -35,8 +35,8 @@ def login(driver):
    # password_id_box = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_Password')
    # password_id_box.send_keys('')
 
-    login_button = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_LoginButton')
-    login_button.click()
+    #login_button = driver.find_element_by_id('SplitMain_ContentPlaceHolderBodyCenter_LoginUser_LoginButton')
+    #login_button.click()
 
     # wait's until the user logged in and the url changes to the one below
     # if the user hasn't logged in after five minutes it will raise exception and the script will terminate
