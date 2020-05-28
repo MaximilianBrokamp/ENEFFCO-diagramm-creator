@@ -51,6 +51,7 @@ fi
 #check if the necessary packages are already installed
 selenium=false
 pynput=false
+PyQt5=false
 installed_packages=$(pip list)
 for i in "${installed_packages[@]}"
 do
@@ -61,6 +62,10 @@ do
 	if [[ $i = *"pynput"* ]]; then
 		echo "INFO: pynput package already installed"
 		pynput=true
+	fi
+		if [[ $i = *"PyQt5"* ]]; then
+		echo "INFO: pynput package already installed"
+		PyQt5=true
 	fi
 done
 
@@ -92,21 +97,20 @@ if ! $pynput; then
 		echo "Successfully Installed pynput";
 	fi
 fi
- 
-#check if all necessary files exit
-#currently not working
 
-#cd code
-#return_value=$(python -c "import check_all_files; return_value=check_all_files.check_all_files(); exit(return_value)")
-#cd ..
+if ! $PyQt5; then
+	echo $'INFO: pynput package NOT found, will be installed now'
+	PyQt5=$(python -m pip install PyQt5)
+	if [[ $PyQt5 = *"ERROR"* ]]; then
+		echo "$pynput_install"
+		message=$'could not install pynput, \ntry again or install the package manually';
+		installation_failed "$message";
+	else
+		echo "Successfully Installed pynput";
+	fi
+fi
 
-#echo "${return_value}"
-#if [[ $return_value = *"True"* ]]; then
-#	echo "INFO: all necessary files are available";
-#else
-#	message=$'could not find all files'
-#	installation_failed "$message";
-#fi
+
 
 installation_succeded
 
