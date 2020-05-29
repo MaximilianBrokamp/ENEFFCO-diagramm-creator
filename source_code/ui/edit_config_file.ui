@@ -10,11 +10,15 @@
     <x>0</x>
     <y>0</y>
     <width>859</width>
-    <height>0</height>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Eneffco Diagram creator</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+background-color: rgb(255, 255, 255);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
