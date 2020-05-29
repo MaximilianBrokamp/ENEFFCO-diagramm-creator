@@ -27,7 +27,10 @@ class Logic(baseUIWidget, baseUIClass):
         self.filtered = False
         self.all_plants_as_list = None
         self.all_plants_as_tree = None
+        self.all_plants_as_list = ui_main.userinterface.all_plants_as_list
+        self.all_plants_as_tree = ui_main.userinterface.all_plants_as_tree
 
+        self.load_plant_tree(self.all_plants_as_tree)
     def show_loading(self):
         ui_main.userinterface.create_loading_window()
         self.setEnabled(False)

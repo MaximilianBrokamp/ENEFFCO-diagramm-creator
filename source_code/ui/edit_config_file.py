@@ -103,7 +103,7 @@ class Logic(baseUIWidget, baseUIClass):
         if ui_main.userinterface.config_file_name is None or ui_main.userinterface.config_file_name == "":
             self.missing_information = True
         if ui_main.userinterface.config.select_list == []:
-            ui_main.userinterface.config.select_list = ui_main.userinterface.select_plants_window.all_plants_as_list
+            ui_main.userinterface.config.select_list = ui_main.userinterface.all_plants_as_list
 
 
     def save_and_start_button_click(self):

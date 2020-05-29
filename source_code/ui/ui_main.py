@@ -37,6 +37,8 @@ class userinterface():
         self.to_creat_list = None
         self.current_plant_number = None
         self.real_report_path = None
+        self.all_plants_as_list = None
+        self.all_plants_as_tree = None
         #self.running = False
 
 
@@ -162,10 +164,8 @@ class userinterface():
         self.threadpool.start(get_all_plants)
 
     def get_all_plants_results(self, all_plants_lists):
-        self.create_select_plants_window()
-        self.select_plants_window.all_plants_as_list = all_plants_lists[1]
-        self.select_plants_window.all_plants_as_tree = all_plants_lists[0]
-        self.select_plants_window.load_plant_tree(all_plants_lists[0])
+        self.all_plants_as_list = all_plants_lists[1]
+        self.all_plants_as_tree = all_plants_lists[0]
 
     def get_all_plants_finished(self):
         self.threadpool.clear()
