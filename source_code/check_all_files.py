@@ -85,7 +85,7 @@ def check_all_files():
 
     #check if install.sh exist
     path_to_check = program_root_directory
-    if not os.path.exists(path_to_check + "/install.sh"): everything_existing = False; missing.append({"type": "file", "name": "install.sh", "path": path_to_check})
+    if not os.path.exists(path_to_check + "/install.py"): everything_existing = False; missing.append({"type": "file", "name": "install.py", "path": path_to_check})
 
     # check if starting script exists
     path_to_check = program_root_directory

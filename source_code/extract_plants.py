@@ -18,7 +18,7 @@ def get_all_plants_as_list():
 
 def get_all_plants_as_tree():
     tree_all_plants = []
-    definition_file = open("./download/InstallDefListExport.csv", "r")
+    definition_file = open("./download/InstallDefListExport.csv", "r", encoding="utf-8")
     lines = definition_file.readlines()
     for row_number in range(len(lines)):
         if row_number == 0:
@@ -28,6 +28,7 @@ def get_all_plants_as_tree():
             if row_number + 1 < len(lines):
                 tree_all_plants.append(get_sub_tree(lines, row_number, line[2]))
     definition_file.close()
+    print(tree_all_plants)
     return tree_all_plants
 
 def get_sub_tree(lines, row_number, sub_tree_name):

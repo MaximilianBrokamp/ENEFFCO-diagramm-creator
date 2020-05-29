@@ -119,22 +119,25 @@ class Logic(baseUIWidget, baseUIClass):
     def filtered_result(self, result):
         tree = self.all_plants_as_tree
         i = 0
-        while i < len(tree):
-            element = tree[i]
-            self.remove_elements_from_tree(element, result)
-            i += 1
-        for element in tree:
-            if type(element) == list:
-                if element[1] == []:
-                    tree.remove(element)
-                else:
-                    for e in element[1]:
-                        if type(e) == list:
-                            if e[1] == []:
-                                element[1].remove(e)
-
+        #while i < len(tree):
+        #    element = tree[i]
+        self.remove_elements_from_tree(tree, result)
+        #    i += 1
+        #i = 0
+        self.delete_empty_sub_tree(tree)
+        self.delete_empty_sub_tree(tree)
         self.update_tree()
 
+    def delete_empty_sub_tree(self, tree):
+        i = 0
+        while i < len(tree):
+            if type(tree[i]) == list:
+                if tree[i] == [] or (len(tree[i]) == 2 and tree[i][1] == []):
+                    tree.remove(tree[i])
+                    i -= 1
+                else:
+                    self.delete_empty_sub_tree(tree[i])
+            i += 1
     def remove_elements_from_tree(self, tree, remove_list):
         k = 0
         while k < len(tree):
@@ -149,13 +152,10 @@ class Logic(baseUIWidget, baseUIClass):
                         self.remove_elements_from_tree(tree[i], remove_list)
                         i += 1
                         continue
-                    while j < len(remove_list):
-                        if remove_list[j] == tree[i]:
-                            tree.remove(remove_list[j])
-                            remove_list.remove(remove_list[j])
-                            i -= 1
-                            break
-                        j += 1
+                    if tree[i] in remove_list:
+                        remove_list.remove(tree[i])
+                        tree.remove(tree[i])
+                        i -= 1
                     i += 1
             k += 1
 

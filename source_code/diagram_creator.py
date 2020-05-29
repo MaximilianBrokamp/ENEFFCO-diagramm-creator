@@ -75,6 +75,10 @@ def get_all_plants(driver, retry):
     return [tree_all_plants, list_all_plants]
 
 def get_plants_with_exiting_diagram(driver, diagram_name):
+    #eiminate spaces at the end of a diagram name
+    while diagram_name.endswith(" "):
+        diagram_name = diagram_name[:len(diagram_name)-1]
+
     af.go_to_ChartPage(driver)
 
     af.wait_and_reload(driver, 10, 2, By.XPATH,"//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_PlaceHolder_ctl00_InstTreeDisplayCollapsiblePanel_ctl00_ctl00_ctl03']/img")
@@ -98,7 +102,7 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
             driver.find_element_by_xpath(
                 "//*[@id='SplitMain_ContentPlaceHolderBodyLeft_FolderTabCtrl_FolderPanel_FileEntryGridPopUp_PopUp_PWH-1']/table/tbody/tr/td[2]/img").click()
             return False
-        elif first_entry[0].text != diagram_name:
+        elif first_entry[0].text.find(diagram_name) == -1:
             time.sleep(2)
             continue
         else:
@@ -115,13 +119,16 @@ def get_plants_with_exiting_diagram(driver, diagram_name):
             if len(current_row_code) < 1:
                 row_number -= 1
                 break
-            elif driver.find_element_by_xpath("//*[@id='" + analysis_search_id + "']/td[3]").text != diagram_name:
+            # checks if the name of the diagram in the current row starts wit diagram_name
+            # to change the check to an exact accordance change to:  elif driver.find_element_by_xpath("//*[@id='" + analysis_search_id + "']/td[3]").text != diagram_name:
+            elif not driver.find_element_by_xpath("//*[@id='" + analysis_search_id + "']/td[3]").text.startswith(diagram_name):
                 continue
             else:
                 plant_code = current_row_code[0].text
                 plant_code = plant_code.split(' ')
                 if len(plant_code[0]) == 7 and plant_code[0][3] == '.':
-                    plants_with_exiting_diagram.append(plant_code[0])
+                    if plant_code[0] not in plants_with_exiting_diagram:
+                        plants_with_exiting_diagram.append(plant_code[0])
 
         # after the first Iteration the path to the next icon changes
         first_iteration = False
@@ -422,8 +429,8 @@ def replace_datapoints(driver, plant_code, diagram_type):
                     existing = True
                     time.sleep(2)
                     datapoint_found = True
-            elif diagram_datapoint[3].find("Aussentemperatur") != -1 and diagram_datapoint[3].find("angepasste") != -1:
-                if datapoint[2].find("Aussentemperatur") != -1 and datapoint[2].find("angepasste") != -1:
+            elif diagram_datapoint[3].find("Aussentemperatur") != -1:
+                if datapoint[2].find("Aussentemperatur"):
                     actionChains = ActionChains(driver)
                     actionChains.drag_and_drop(datapoint[1],driver.find_element_by_xpath(diagram_datapoint[2])).perform()
                     existing = True
@@ -530,7 +537,7 @@ def create_diagram(driver, diagram_type, diagram_name, plant_code, template_path
         data = []
         if return_value[0] == 0:
             successful = True
-            message = return_value[1] + ", " + str(return_value[3]) + " out of " + str(return_value[2]) + " datapoints from the template could be replaced "
+            message = return_value[1] + ", " + str(return_value[2] - return_value[3]) + " out of " + str(return_value[2]) + " datapoints from the template could be replaced "
             data = [plant_code, return_value[0], message,  datetime.datetime.now(), duration_diagram]
         elif return_value[0] == 1:
             successful = True
