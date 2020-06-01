@@ -107,15 +107,20 @@ class Logic(baseUIWidget, baseUIClass):
 
 
     def save_and_start_button_click(self):
+        print("entering save and start button click")
         self.update_config()
+        print("updated config")
         if self.missing_information:
             ui_main.userinterface.create_not_a_valid_config_file_error(self)
             return
+        print("no missing information in config")
         if ui_main.userinterface.select_plants_window is not None:
+            print("closing plants window")
             ui_main.userinterface.select_plants_window.close()
             ui_main.userinterface.select_plants_window = None
         ui_main.userinterface.create_running_window(self)
         self.close()
+        print("leaving save and start button click")
 
     def save_button_click(self):
         self.update_config()

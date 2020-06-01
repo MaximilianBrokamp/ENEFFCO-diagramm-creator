@@ -560,17 +560,3 @@ def create_diagram(driver, diagram_type, diagram_name, plant_code, template_path
         diagram.add_plant(data)
     return data, successful, warning
 
-    #number_created_diagrams = len(diagram.plants_with_created_diagram)
-    #task_complete = False
-    #if number_created_diagrams == number_diagrams_to_create:
-    #    task_complete = True
-    #end = datetime.now()
-
-    #duration = round((end - start).total_seconds()/60, 2)
-    #create_report(driver, diagram, config_file_path, task_complete, duration, number_created_diagrams,
-    #              number_diagrams_to_create, number_successfully_created_diagrams, number_failed_diagrams,
-    #              number_ignored, number_Warnings)
-
-
-
-

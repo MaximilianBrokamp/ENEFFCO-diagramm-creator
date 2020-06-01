@@ -100,11 +100,13 @@ class userinterface():
         self.loading_window.show_loading()
 
     def create_running_window(self, previous_window):
+        print("entering create runnig window")
         geometry = previous_window.geometry()
         self.running_window = running.Logic()
         self.running_window.setGeometry(geometry)
         self.running_window.show()
         self.init_diagram_creation_loop()
+        print("leave create running window")
 
     def create_finished_window(self, previous_window):
         geometry = previous_window.geometry()
@@ -171,12 +173,11 @@ class userinterface():
         self.threadpool.clear()
         self.create_load_or_create_config_window()
 
-
-
-
     def init_diagram_creation_loop(self):
+        print("entering init diagram ceration loops")
         self.current_plant_number = 0
         to_create_list = []
+        print("filling to create list")
         if self.config.ignore_list== []:
             to_create_list = self.config.select_list
         else:
@@ -185,12 +186,18 @@ class userinterface():
                     if element.find(ignore) == -1:
                         to_create_list.append(element)
         self.to_creat_list = to_create_list
+        print("ignore List:", self.config.ignore_list)
+        print("to create list:", to_create_list)
+        print("define thread")
         diagram_loop = qt_thread_task(self.diagram_creation_loop)
         diagram_loop.signals.result.connect(self.create_report_wrapper)
         diagram_loop.signals.finished.connect(self.diagram_creation_loop_finihsed)
+        print("starting thread")
         self.threadpool.start(diagram_loop)
+        print("leaving init diagram ceration loop")
 
     def diagram_creation_loop(self):
+        print("entering diagram creation loop")
         report_data = []
         successfull_created_diagrams = 0
         failed_diagrams = 0
@@ -199,6 +206,7 @@ class userinterface():
         number_diagrams_to_create = len(self.to_creat_list)
         start = datetime.datetime.now()
         for element in self.to_creat_list:
+            print("current diagram: ", element)
             self.running_window.plant_info.clear()
             self.running_window.plant_info.insert(element)
             self.running_window.number_info.clear()
@@ -208,6 +216,8 @@ class userinterface():
             if self.end:
                 break
             return_value = diagram_creator.create_diagram(self.driver,  self.config.diagram_type, self.config.diagram_name, element, self.config.template_path, self.config)
+            print("diagram created")
+            print("return value:", return_value)
             #report_data.append(return_value[0])
             if return_value[1]:
                 successfull_created_diagrams += 1
@@ -223,8 +233,10 @@ class userinterface():
         end = datetime.datetime.now()
 
         duration = round((end - start).total_seconds()/60, 2)
+        print("leaving diagram ceration loop")
         return [self.config,  task_complete, duration, number_created_diagrams,
                       number_diagrams_to_create, successfull_created_diagrams, failed_diagrams, warnings]
+
 
     def diagram_creation_loop_finihsed(self):
         self.threadpool.clear()
@@ -233,9 +245,10 @@ class userinterface():
         self.running_window.close()
 
     def create_report_wrapper(self, report_data):
+        print("entering create report wrapper")
         real_report_path = diagram_creator.create_report(report_data[0], report_data[1], report_data[2], report_data[3], report_data[4], report_data[5], report_data[6], report_data[7])
         self.real_report_path = real_report_path
-
+        print("leaving create report wrapper")
     def close(self):
         if self.start_window is not None:
             self.start_window.close()
