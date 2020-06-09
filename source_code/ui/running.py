@@ -10,13 +10,16 @@ baseUIClass, baseUIWidget = uic.loadUiType("./source_code/ui/running.ui")
 # use loaded ui file in the logic class
 class Logic(baseUIWidget, baseUIClass):
     def __init__(self, parent=None):
+        print("entering running window ini")
         super(Logic, self).__init__(parent)
         self.setupUi(self)
         # connects
+        print("connects")
         self.actionQuit.triggered.connect(self.close_program)
         self.terminate_button.clicked.connect(self.terminate_button_click)
         self.pause_button.clicked.connect(self.pause_button_click)
         self.diagram_info.insert(ui_main.userinterface.config.diagram_name)
+        print("leaving running window ini")
 
     def pause_button_click(self):
         if not ui_main.userinterface.pause:
@@ -41,7 +44,6 @@ class Logic(baseUIWidget, baseUIClass):
             self.info_label.setText("Programm Running")
             ui_main.userinterface.end = False
             self.pause_button.setEnabled(True)
-
 
     def close_program(self):
         ui_main.userinterface.close()

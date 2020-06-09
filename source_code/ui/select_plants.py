@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QTreeWidgetItem
 from source_code.ui import ui_main
 from source_code import extract_plants
-import sip
 # load ui file
 baseUIClass, baseUIWidget = uic.loadUiType("./source_code/ui/select_plants.ui")
 
@@ -54,7 +53,6 @@ class Logic(baseUIWidget, baseUIClass):
         self.listWidget.setEnabled(ignore_state)
         self.filter_plants.setEnabled(select_state)
         self.plants_tree.setEnabled(select_state)
-
 
 
         #ui_main.userinterface.get_all_plants_wrapper()
@@ -213,4 +211,3 @@ class Logic(baseUIWidget, baseUIClass):
 
     def close_program(self):
         ui_main.userinterface.close()
-
