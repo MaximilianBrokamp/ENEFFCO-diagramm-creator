@@ -96,7 +96,7 @@ def download_wait(path_to_downloads, filename):
 #time_before_start: this time will be waited before checking for loading signs the first time
 # if after 15 seconds the side hasn't fully loaded it will return false
 def wait_loading_finished(driver, time_before_start):
-    time.sleep(3)
+    time.sleep(time_before_start)
     seconds = 0
     loading_finished = True
     try:
@@ -113,6 +113,7 @@ def wait_loading_finished(driver, time_before_start):
         return False
     except selenium.common.exceptions.StaleElementReferenceException:
         return wait_loading_finished(driver, 2)
+    return True
 
 # searches all entry in the evaluatin tab for a diagram with the name "diagram_name"
 # the browser need to be in the evaluation tab before the function is called

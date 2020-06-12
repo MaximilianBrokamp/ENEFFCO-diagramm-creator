@@ -50,13 +50,14 @@ def login(driver):
 #the retry variable indicates if after a failed download attempt the process should be executed again
 def get_all_plants(driver, retry):
     list_all_plants = []
-    af.go_to_ChartPage(driver)
+    if not af.wait_loading_finished(driver, 0.5):
+        af.go_to_ChartPage(driver)
     path = os.path.abspath('./download')
     if os.path.isfile(path + "/InstallDefListExport.csv"):
         os.remove(path + "/InstallDefListExport.csv")
 
     driver.find_element_by_xpath("// *[ @ id = 'SplitMain_0_CC'] / table / tbody / tr / td[6]").click()
-    time.sleep(2)
+    #time.sleep(2)
     contex_menu = driver.find_element_by_id("SplitMain_ContentPlaceHolderBodyLeft_DefinitionLeftCtrl_DefinitionLeftPanel_PlaceHolder_ctl00_ctl00_InstLeftTreeCollapsiblePanel_ctl00_ctl00_ToolbarItemMore")
 
     hover = ActionChains(driver)
